@@ -4,6 +4,8 @@
  * @type {import('$lib/index.js').Handle}
  */
 export const handle = async ({ socket }) => {
+  console.log('WebSocket connection established')
+
   socket.on('message', (message) => {
     console.log(`Received message: ${message}`)
 
