@@ -15,4 +15,4 @@ export type Handle = (event: {
 
 export type HandleError = (event: { error: Error }) => void
 
-export * from './stores/socket.js'
+export * from './stores/websocket.js'

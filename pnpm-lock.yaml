@@ -33,6 +33,9 @@ devDependencies:
   publint:
     specifier: ^0.1.9
     version: 0.1.11
+  sockette:
+    specifier: ^2.0.6
+    version: 2.0.6
   svelte:
     specifier: ^3.54.0
     version: 3.58.0
@@ -1486,6 +1489,10 @@ packages:
   /slash@4.0.0:
     resolution: {integrity: sha512-3dOsAHXXUkQTpOYcoAxLIorMTp4gIQr5IW3iVb7A7lFIp0VHhnynm9izx6TssdrIcVIESAlVjtnO2K8bg+Coew==}
     engines: {node: '>=12'}
+    dev: true
+
+  /sockette@2.0.6:
+    resolution: {integrity: sha512-W6iG8RGV6Zife3Cj+FhuyHV447E6fqFM2hKmnaQrTvg3OydINV3Msj3WPFbX76blUlUxvQSMMMdrJxce8NqI5Q==}
     dev: true
 
   /sorcery@0.11.0:
