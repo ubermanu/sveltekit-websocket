@@ -1,22 +1,25 @@
+const uuid = () => Math.random().toString(16).slice(2)
+
 /**
  * Handles the creation of a new websocket connection.
  *
  * @type {import('$lib/index.js').Handle}
  */
 export const handle = async ({ socket }) => {
-  console.log('WebSocket connection established')
+  const id = uuid()
+
+  console.log('WebSocket connection established', id)
 
   socket.on('message', (message) => {
-    console.log(`Received message: ${message}`)
+    console.log(`Received message: ${message}`, id)
 
     if (message.toString() === 'ping') {
-      console.log('Sending pong')
       socket.send('pong')
     }
   })
 
   socket.on('close', () => {
-    console.log('WebSocket connection closed')
+    console.log('WebSocket connection closed', id)
   })
 }
 

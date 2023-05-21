@@ -12,6 +12,7 @@
     socket = new Sockette($websocket.url, {
       onopen: () => connected.set(true),
       onclose: () => connected.set(false),
+      onmessage: (e) => console.log(e),
     })
   }
 
@@ -24,3 +25,5 @@
 <p>
   Socket is connected: <code>{$connected ? '🟢' : '🔴'}</code>
 </p>
+
+<button on:click={() => socket?.send('ping')}>PING</button>
