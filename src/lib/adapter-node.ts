@@ -15,24 +15,14 @@ export default (opts?: AdapterOptions) => {
 
     let indexJs = readFileSync(indexJsPath, 'utf8')
 
-    // Add websocket server import
-    indexJs = `
-    import { WebSocketServer } from 'ws';
-    ${indexJs}
-    `
-
-    // Attach websocket server to polka
     // TODO: Export handlers from hooks.websockets.js and use them
-    indexJs = indexJs.replace(
-      `const server = polka().use(handler);`,
-      `const httpServer = http.createServer();
-const server = polka({ server: httpServer }).use(handler);
-
-const wss = new WebSocketServer({ server: httpServer })
+    indexJs = `
+import { WebSocketServer } from 'ws';
+${indexJs}
+const wss = new WebSocketServer({ server: server.server })
 wss.on('connection', (ws, req) => {
-console.log('> Websocket connection')
+  console.log('> Websocket connection')
 })`
-    )
 
     writeFileSync(indexJsPath, indexJs, 'utf8')
 
