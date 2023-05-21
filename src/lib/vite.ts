@@ -1,36 +1,58 @@
-import fs from 'fs'
+import type { Handle, HandleError } from '$lib/index.js'
 import path from 'path'
-import { Server } from 'socket.io'
 import type { Plugin } from 'vite'
+import { WebSocketServer } from 'ws'
 
-const createWebSocketServer = (): Plugin => ({
-  name: 'kitWebSocketServer',
-  async configureServer(server) {
-    if (!server.httpServer) {
-      throw new Error('No http server instance found.')
-    }
+const createWebSocketServer = (): Plugin => {
+  let wss: WebSocketServer
 
-    const io = new Server(server.httpServer)
+  return {
+    name: 'kitWebSocketServer',
+    async configureServer(server) {
+      wss = new WebSocketServer({ noServer: true })
 
-    const hookFilename = path.resolve(process.cwd(), './src/hooks.websocket.js')
+      server.httpServer?.on('upgrade', (req, socket, head) => {
+        if (req.headers['sec-websocket-protocol'] === 'vite-hmr') {
+          return
+        }
+        wss.handleUpgrade(req, socket, head, (socket, req) => {
+          wss.emit('connection', socket, req)
+        })
+      })
 
-    if (!fs.existsSync(hookFilename)) {
-      console.warn('No websocket hook found.')
-      return
-    }
+      // TODO: Get from kit.config.hooks.websocket
+      // TODO: Handle TS files
+      const hooksFilename = 'src/hooks.websocket.js'
+      const hooks: { handle: Handle; handleError: HandleError } = await import(
+        path.join(process.cwd(), hooksFilename)
+      )
 
-    const entrypoint = await import(hookFilename)
-    const { handle } = entrypoint
+      wss.on('connection', (ws, req) => {
+        const request = {
+          url: req.url!,
+          headers: req.headers,
+          method: req.method,
+        }
 
-    // TODO: Fetch all the +websocket.js files and handle channel events
-    //  A channel name is the route.id from the page component
-    //  So it should be possible to target events to specific routes (like form actions)
+        // The locals object is used to store data that can be used during the whole websocket session
+        let locals: any = {}
 
-    // TODO: Implement middleware with next() function
-    if (handle) {
-      await handle({ server: io })
-    }
-  },
-})
+        hooks?.handle?.({
+          server: wss,
+          request,
+          socket: ws,
+          locals,
+        })
+
+        ws.on('error', (error) => {
+          hooks?.handleError?.({ error })
+        })
+
+        // TODO: Get the route from the request so we can handle scoped events
+        //  Fetch the +websocket.js file and handle route events
+      })
+    },
+  }
+}
 
 export { createWebSocketServer as websocket }

@@ -1,97 +1,85 @@
-import { io } from 'socket.io-client'
+import { browser } from '$app/environment'
+import { onDestroy } from 'svelte'
 import { derived, writable } from 'svelte/store'
 
-// https://socket.io/docs/v3/emit-cheatsheet/#reserved-events
-const reservedEvents = [
-  'connect',
-  'connect_error',
-  'disconnect',
-  'disconnecting',
-  'newListener',
-  'removeListener',
-]
+// TODO: Get the websocket server url from the server
+const url = `ws://localhost:5173`
 
-const client = io()
+// This is a fake socket that is used when rendering the app in SSR mode
+const fakeSocket = {
+  onopen: () => {},
+  onmessage: () => {},
+  onerror: () => {},
+  onclose: () => {},
+  send: () => {},
+  close: () => {},
+  addEventListener: () => {},
+  removeEventListener: () => {},
+  dispatchEvent: () => true,
 
-const connected = writable(false)
+  readyState: 0,
+  protocol: '',
+  extensions: '',
+  bufferedAmount: 0,
+  binaryType: 'blob',
+  url: url,
 
-const socket = derived([connected], ([$connected]) => {
-  return {
-    connected: $connected,
-    connect: () => client.connect(),
-    disconnect: () => client.disconnect(),
-    emit,
-  }
-})
+  CONNECTING: 0,
+  OPEN: 1,
+  CLOSING: 2,
+  CLOSED: 3,
+} as WebSocket
 
-/** Emit an event to the server */
-const emit = (event: string, ...args: any[]) => {
-  if (reservedEvents.includes(event)) {
-    throw new Error(`Cannot emit reserved event ${event}`)
-  }
-  client.emit(event, ...args)
+const client = browser ? new WebSocket(url) : fakeSocket
+const connected$ = writable(false)
+
+client.onopen = () => {
+  connected$.set(true)
 }
 
-export { socket }
-
-/**
- * We are forced to keep the event functions in a Map so they are accessible in
- * any components. The issue here is, with HMR or multiple listeners, it keeps
- * adding up.
- *
- * TODO: Find a way to remove the listeners when the component is destroyed
- */
-let eventFunctions: Map<string, (...args: any) => void> = new Map()
-
-export function onConnect(fn: () => void) {
-  eventFunctions.set('connect', fn)
+client.onclose = () => {
+  connected$.set(false)
 }
 
-export function onConnectError(fn: () => void) {
-  eventFunctions.set('connect_error', fn)
+export const onConnect = (callback: () => void) => {
+  client.addEventListener('open', callback)
+
+  onDestroy(() => {
+    client.removeEventListener('open', callback)
+  })
 }
 
-export function onDisconnecting(fn: () => void) {
-  eventFunctions.set('disconnecting', fn)
+export const onMessage = (callback: (data: any) => void) => {
+  client.addEventListener('message', (event) => {
+    callback(event.data)
+  })
+
+  onDestroy(() => {
+    client.removeEventListener('message', callback)
+  })
 }
 
-export function onDisconnect(fn: () => void) {
-  eventFunctions.set('disconnect', fn)
+export const onDisconnect = (callback: () => void) => {
+  client.addEventListener('close', callback)
+
+  onDestroy(() => {
+    client.removeEventListener('close', callback)
+  })
 }
 
-export function onEvent(event: string, fn: (...args: any[]) => void) {
-  if (reservedEvents.includes(event)) {
-    throw new Error(`Cannot listen to reserved event ${event}`)
-  }
-  eventFunctions.set(event, fn)
+export const onError = (callback: (error: any) => void) => {
+  client.addEventListener('error', callback)
+
+  onDestroy(() => {
+    client.removeEventListener('error', callback)
+  })
 }
 
-export function offEvent(event: string) {
-  eventFunctions.delete(event)
-}
-
-/** Attach all the event listeners to the client */
-
-client.onAny((event, ...args) => {
-  if (eventFunctions.has(event)) {
-    eventFunctions.get(event)?.(...args)
-  }
-})
-
-client.on('connect', (...args) => {
-  connected.set(true)
-  eventFunctions.get('connect')?.(...args)
-})
-
-client.on('connect_error', (...args) => {
-  eventFunctions.get('connect_error')?.(...args)
-})
-
-client.on('disconnecting', () => {
-  eventFunctions.get('disconnecting')?.()
-})
-
-client.on('disconnect', () => {
-  eventFunctions.get('disconnect')?.()
-  connected.set(false)
-})
+export const socket = derived(connected$, (connected) => ({
+  send: client.send.bind(client),
+  close: client.close.bind(client),
+  addEventListener: client.addEventListener.bind(client),
+  removeEventListener: client.removeEventListener.bind(client),
+  dispatchEvent: client.dispatchEvent.bind(client),
+  connected,
+}))

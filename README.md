@@ -1,12 +1,12 @@
 # @ubermanu/sveltekit-websocket
 
-This is a small websocket plugin for SvelteKit. It uses [socket.io](https://socket.io/) under the hood.
+This is a small websocket plugin for SvelteKit. It uses [ws](https://github.com/websockets/ws) under the hood.
 
 ## Install
 
-Install the package and its peer dependencies:
+Install the package:
 
-    pnpm install @ubermanu/sveltekit-websocket socket.io socket.io-client -D
+    pnpm install @ubermanu/sveltekit-websocket -D
 
 ## Usage
 
@@ -33,24 +33,4 @@ export function handle({ server }) {
     })
   })
 }
-```
-
-Use the websocket client in your Svelte components:
-
-```svelte
-<script>
-  import { socket, onConnect, onEvent } from '@ubermanu/sveltekit-websocket'
-
-  onConnect(() => {
-    $socket.emit('ping')
-  })
-
-  onEvent('pong', () => {
-    console.log('pong')
-  })
-</script>
-
-<p>
-  Socket is connected: <code>{$socket.connected ? '🟢' : '🔴'}</code>
-</p>
 ```

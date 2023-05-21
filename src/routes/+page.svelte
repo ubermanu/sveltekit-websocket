@@ -1,12 +1,20 @@
 <script>
-  import { socket, onConnect, onEvent } from '$lib'
+  import { onConnect, onDisconnect, onError, onMessage, socket } from '$lib'
 
   onConnect(() => {
-    $socket.emit('ping')
+    console.log('Socket connected 🎉')
   })
 
-  onEvent('pong', () => {
-    console.log('pong')
+  onMessage((message) => {
+    console.log('Socket message received 📨', message)
+  })
+
+  onError((error) => {
+    console.log('Socket error 😱', error)
+  })
+
+  onDisconnect(() => {
+    console.log('Socket disconnected 😢')
   })
 </script>
 
@@ -14,4 +22,4 @@
   Socket is connected: <code>{$socket.connected ? '🟢' : '🔴'}</code>
 </p>
 
-<button on:click={() => $socket.emit('ping')}>Ping</button>
+<button on:click={() => $socket.send('ping')}>Ping</button>
