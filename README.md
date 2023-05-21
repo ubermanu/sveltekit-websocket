@@ -51,26 +51,9 @@ In your page, import the `websocket` store and connect to its url using any webs
 
 ```svelte
 <script>
-  import { browser } from '$app/environment'
-  import { websocket } from '@ubermanu/sveltekit-websocket'
-  import { writable } from 'svelte/store'
-  import { onDestroy } from 'svelte'
-  import Sockette from 'sockette'
+  import { socket } from '@ubermanu/sveltekit-websocket'
 
-  let socket
-  const connected = writable(false)
-
-  if (browser) {
-    socket = new Sockette($websocket.url, {
-      onopen: () => connected.set(true),
-      onclose: () => connected.set(false),
-    })
-  }
-
-  onDestroy(() => {
-    socket?.close()
-    socket = null
-  })
+  const { connected } = socket()
 </script>
 
 <p>

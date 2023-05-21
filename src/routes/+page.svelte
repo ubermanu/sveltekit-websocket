@@ -1,24 +1,18 @@
 <script>
-  import { browser } from '$app/environment'
-  import { websocket } from '$lib'
-  import { writable } from 'svelte/store'
-  import { onDestroy } from 'svelte'
-  import Sockette from 'sockette'
+  import { socket } from '$lib'
 
-  let socket
-  const connected = writable(false)
+  const { connected, ...ws } = socket()
 
-  if (browser) {
-    socket = new Sockette($websocket.url, {
-      onopen: () => connected.set(true),
-      onclose: () => connected.set(false),
-      onmessage: (e) => console.log(e),
-    })
-  }
+  ws.addEventListener('open', () => {
+    console.log('connected')
+  })
 
-  onDestroy(() => {
-    socket?.close()
-    socket = null
+  ws.addEventListener('message', (event) => {
+    console.log(event)
+  })
+
+  ws.addEventListener('close', () => {
+    console.log('disconnected')
   })
 </script>
 
@@ -26,4 +20,4 @@
   Socket is connected: <code>{$connected ? '🟢' : '🔴'}</code>
 </p>
 
-<button on:click={() => socket?.send('ping')}>PING</button>
+<button on:click={() => ws?.send('ping')}>PING</button>
