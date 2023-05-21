@@ -8,6 +8,7 @@ const attachWebSocketServer = (): Plugin => {
 
   return {
     name: 'kitWebSocketServer',
+
     async configureServer(server) {
       wss = await createWebSocketServer()
 
@@ -15,6 +16,16 @@ const attachWebSocketServer = (): Plugin => {
         if (req.headers['sec-websocket-protocol'] === 'vite-hmr') {
           return
         }
+        wss?.handleUpgrade(req, socket, head, (socket, req) => {
+          wss.emit('connection', socket, req)
+        })
+      })
+    },
+
+    async configurePreviewServer(server) {
+      wss = await createWebSocketServer()
+
+      server.httpServer?.on('upgrade', (req, socket, head) => {
         wss?.handleUpgrade(req, socket, head, (socket, req) => {
           wss.emit('connection', socket, req)
         })
