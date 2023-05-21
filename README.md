@@ -47,17 +47,33 @@ export function handle({ socket }) {
 }
 ```
 
-In your page, import the `websocket` store and connect to it using any websocket client:
+In your page, import the `websocket` store and connect to its url using any websocket client:
 
 ```svelte
 <script>
+  import { browser } from '$app/environment'
   import { websocket } from '@ubermanu/sveltekit-websocket'
-  import io from 'socket.io-client'
+  import { writable } from 'svelte/store'
+  import { onDestroy } from 'svelte'
+  import Sockette from 'sockette'
 
-  const socket = io($websocket.url)
+  let socket
+  const connected = writable(false)
 
-  socket.on('connect', () => {
-    socket.send('something')
+  if (browser) {
+    socket = new Sockette($websocket.url, {
+      onopen: () => connected.set(true),
+      onclose: () => connected.set(false),
+    })
+  }
+
+  onDestroy(() => {
+    socket?.close()
+    socket = null
   })
 </script>
+
+<p>
+  Socket is connected: <code>{$connected ? '🟢' : '🔴'}</code>
+</p>
 ```
