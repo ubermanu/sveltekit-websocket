@@ -10,6 +10,20 @@ Install the package:
 
 ## Usage
 
+Use the patched `node-adapter` in `svelte.config.js`:
+
+```js
+import adapter from '@ubermanu/sveltekit-websocket/adapter-node'
+
+const config = {
+  kit: {
+    adapter: adapter(),
+  },
+}
+
+export default config
+```
+
 Set up the websocket server in `vite.config.js`:
 
 ```js
@@ -26,11 +40,24 @@ Create your websocket handler in `src/hooks.websocket.js`:
 
 ```js
 /** @type {import('@ubermanu/sveltekit-websocket').Handle} */
-export function handle({ server }) {
-  server.on('connection', (socket) => {
-    socket.on('ping', () => {
-      socket.send('pong')
-    })
+export function handle({ socket }) {
+  socket.on('message', () => {
+    socket.send('something')
   })
 }
+```
+
+In your page, import the `websocket` store and connect to it using any websocket client:
+
+```svelte
+<script>
+  import { websocket } from '@ubermanu/sveltekit-websocket'
+  import io from 'socket.io-client'
+
+  const socket = io($websocket.url)
+
+  socket.on('connect', () => {
+    socket.send('something')
+  })
+</script>
 ```
