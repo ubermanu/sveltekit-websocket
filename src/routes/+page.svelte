@@ -1,25 +1,9 @@
 <script>
-  import { onConnect, onDisconnect, onError, onMessage, socket } from '$lib'
+  import { websocket } from '$lib'
 
-  onConnect(() => {
-    console.log('Socket connected 🎉')
-  })
-
-  onMessage((message) => {
-    console.log('Socket message received 📨', message)
-  })
-
-  onError((error) => {
-    console.log('Socket error 😱', error)
-  })
-
-  onDisconnect(() => {
-    console.log('Socket disconnected 😢')
-  })
+  $: console.log($websocket)
 </script>
 
 <p>
-  Socket is connected: <code>{$socket.connected ? '🟢' : '🔴'}</code>
+  Socket is connected: <code>{$websocket.connected ? '🟢' : '🔴'}</code>
 </p>
-
-<button on:click={() => $socket.send('ping')}>Ping</button>
