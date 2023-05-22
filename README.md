@@ -13,7 +13,7 @@ Install the package:
 Use the patched `node-adapter` in `svelte.config.js`:
 
 ```js
-import adapter from '@ubermanu/sveltekit-websocket/adapter-node'
+import adapter from '@ubermanu/sveltekit-websocket/adapter'
 
 const config = {
   kit: {

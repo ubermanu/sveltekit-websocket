@@ -7,9 +7,12 @@
       "types": "./dist/index.d.ts",
       "svelte": "./dist/index.js"
     },
+    "./adapter": {
+      "import": "./dist/adapter.js"
+    },
     "./vite": {
       "types": "./dist/vite.d.ts",
-      "svelte": "./dist/vite.js"
+      "import": "./dist/vite.js"
     }
   },
   "svelte": "./dist/index.js",

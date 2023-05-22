@@ -7,6 +7,8 @@ export default (opts?: AdapterOptions) => {
   const adapterNode = adapter(opts)
   const adaptOrig = adapterNode.adapt
 
+  adapterNode.name = '@ubermanu/sveltekit-websocket'
+
   adapterNode.adapt = async function (builder) {
     const result = await adaptOrig.call(this, builder)
 
