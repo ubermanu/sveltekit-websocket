@@ -1,7 +1,7 @@
-import type { Handle, HandleError } from '$lib/index.js'
 import path from 'node:path'
 import type { Plugin } from 'vite'
 import { WebSocketServer } from 'ws'
+import type { Handle, HandleError } from './index.js'
 
 const attachWebSocketServer = (): Plugin => {
   let wss: WebSocketServer

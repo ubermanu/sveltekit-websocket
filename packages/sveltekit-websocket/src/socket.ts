@@ -1,7 +1,7 @@
 import { browser } from '$app/environment'
-import { websocket as websocket$ } from '$lib/stores/websocket.js'
 import { onDestroy } from 'svelte'
 import { get, readonly, writable } from 'svelte/store'
+import { websocket as websocket$ } from './stores.js'
 
 /**
  * Creates an SSR compatible websocket client instance, that connects to a

@@ -3,9 +3,9 @@ const uuid = () => Math.random().toString(16).slice(2)
 /**
  * Handles the creation of a new websocket connection.
  *
- * @type {import('$lib/index.js').Handle}
+ * @type {import('@ubermanu/sveltekit-websocket').Handle}
  */
-export const handle = async ({ socket }) => {
+export const handle = async ({ server, socket }) => {
   const id = uuid()
 
   console.log('WebSocket connection established', id)
@@ -26,7 +26,7 @@ export const handle = async ({ socket }) => {
 /**
  * Handles errors that occur in the websocket connection.
  *
- * @type {import('$lib/index.js').HandleError}
+ * @type {import('@ubermanu/sveltekit-websocket').HandleError}
  */
 export function handleError({ error }) {
   console.error(error.stack)

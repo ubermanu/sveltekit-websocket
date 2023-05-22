@@ -1,56 +1,82 @@
 lockfileVersion: '6.0'
 
-dependencies:
-  '@sveltejs/adapter-node':
-    specifier: ^1.2.4
-    version: 1.2.4(@sveltejs/kit@1.15.9)
-  ws:
-    specifier: ^8.13.0
-    version: 8.13.0
+importers:
 
-devDependencies:
-  '@sveltejs/adapter-auto':
-    specifier: ^2.0.0
-    version: 2.0.1(@sveltejs/kit@1.15.9)
-  '@sveltejs/kit':
-    specifier: ^1.5.0
-    version: 1.15.9(svelte@3.58.0)(vite@4.3.3)
-  '@sveltejs/package':
-    specifier: ^2.0.0
-    version: 2.0.2(svelte@3.58.0)(typescript@5.0.4)
-  '@types/ws':
-    specifier: ^8.5.4
-    version: 8.5.4
-  '@ubermanu/prettier-config':
-    specifier: ^1.7.1
-    version: 1.7.1(prettier@2.8.8)
-  prettier:
-    specifier: ^2.8.0
-    version: 2.8.8
-  prettier-plugin-svelte:
-    specifier: ^2.8.1
-    version: 2.10.0(prettier@2.8.8)(svelte@3.58.0)
-  publint:
-    specifier: ^0.1.9
-    version: 0.1.11
-  sockette:
-    specifier: ^2.0.6
-    version: 2.0.6
-  svelte:
-    specifier: ^3.54.0
-    version: 3.58.0
-  svelte-check:
-    specifier: ^3.0.1
-    version: 3.2.0(postcss@8.4.23)(svelte@3.58.0)
-  tslib:
-    specifier: ^2.4.1
-    version: 2.5.0
-  typescript:
-    specifier: ^5.0.0
-    version: 5.0.4
-  vite:
-    specifier: ^4.3.0
-    version: 4.3.3
+  .:
+    devDependencies:
+      '@ubermanu/prettier-config':
+        specifier: ^1.7.1
+        version: 1.7.1(prettier@2.8.8)
+
+  packages/sveltekit-websocket:
+    dependencies:
+      '@sveltejs/adapter-node':
+        specifier: ^1.2.4
+        version: 1.2.4(@sveltejs/kit@1.15.9)
+      ws:
+        specifier: ^8.13.0
+        version: 8.13.0
+    devDependencies:
+      '@sveltejs/kit':
+        specifier: ^1.5.0
+        version: 1.15.9(svelte@3.58.0)(vite@4.3.3)
+      '@sveltejs/package':
+        specifier: ^2.0.0
+        version: 2.0.2(svelte@3.58.0)(typescript@5.0.4)
+      '@types/ws':
+        specifier: ^8.5.4
+        version: 8.5.4
+      '@ubermanu/prettier-config':
+        specifier: ^1.7.1
+        version: 1.7.1(prettier@2.8.8)
+      prettier:
+        specifier: ^2.8.0
+        version: 2.8.8
+      prettier-plugin-svelte:
+        specifier: ^2.8.1
+        version: 2.10.0(prettier@2.8.8)(svelte@3.58.0)
+      publint:
+        specifier: ^0.1.9
+        version: 0.1.11
+      svelte:
+        specifier: ^3.54.0
+        version: 3.58.0
+      svelte-check:
+        specifier: ^3.0.1
+        version: 3.2.0(postcss@8.4.23)(svelte@3.58.0)
+      tslib:
+        specifier: ^2.4.1
+        version: 2.5.0
+      typescript:
+        specifier: ^5.0.0
+        version: 5.0.4
+      vite:
+        specifier: ^4.3.0
+        version: 4.3.3
+
+  sites/example:
+    devDependencies:
+      '@playwright/test':
+        specifier: ^1.28.1
+        version: 1.34.0
+      '@sveltejs/kit':
+        specifier: ^1.5.0
+        version: 1.15.9(svelte@3.58.0)(vite@4.3.3)
+      '@ubermanu/sveltekit-websocket':
+        specifier: workspace:*
+        version: link:../../packages/sveltekit-websocket
+      svelte:
+        specifier: ^3.54.0
+        version: 3.58.0
+      svelte-check:
+        specifier: ^3.0.1
+        version: 3.2.0(svelte@3.58.0)
+      typescript:
+        specifier: ^5.0.0
+        version: 5.0.4
+      vite:
+        specifier: ^4.3.0
+        version: 4.3.3
 
 packages:
 
@@ -282,6 +308,17 @@ packages:
       tslib: 2.5.0
     dev: true
 
+  /@playwright/test@1.34.0:
+    resolution: {integrity: sha512-GIALJVODOIrMflLV54H3Cow635OfrTwOu24ZTDyKC66uchtFX2NcCRq83cLdakMjZKYK78lODNLQSYBj2OgaTw==}
+    engines: {node: '>=14'}
+    hasBin: true
+    dependencies:
+      '@types/node': 18.16.3
+      playwright-core: 1.34.0
+    optionalDependencies:
+      fsevents: 2.3.2
+    dev: true
+
   /@polka/url@1.0.0-next.21:
     resolution: {integrity: sha512-a5Sab1C4/icpTZVzZc5Ghpz88yQtGOyNqYXcZgOssB2uuAr+wF/MvN6bgtW32q7HHrvBki+BsZ0OuNv6EV3K9g==}
 
@@ -348,15 +385,6 @@ packages:
       picomatch: 2.3.1
       rollup: 3.21.1
     dev: false
-
-  /@sveltejs/adapter-auto@2.0.1(@sveltejs/kit@1.15.9):
-    resolution: {integrity: sha512-anxxYMcQy7HWSKxN4YNaVcgNzCHtNFwygq72EA1Xv7c+5gSECOJ1ez1PYoLciPiFa7A3XBvMDQXUFJ2eqLDtAA==}
-    peerDependencies:
-      '@sveltejs/kit': ^1.0.0
-    dependencies:
-      '@sveltejs/kit': 1.15.9(svelte@3.58.0)(vite@4.3.3)
-      import-meta-resolve: 3.0.0
-    dev: true
 
   /@sveltejs/adapter-node@1.2.4(@sveltejs/kit@1.15.9):
     resolution: {integrity: sha512-TNnhS+OKRZ9RKnC+ho5mlE2FJquI61i0v7yOXxBUSU3LAoYH2kwVVL8P8ecjefmZ8BOfM1V54pBnDODBU5CEaA==}
@@ -831,10 +859,6 @@ packages:
       resolve-from: 4.0.0
     dev: true
 
-  /import-meta-resolve@3.0.0:
-    resolution: {integrity: sha512-4IwhLhNNA8yy445rPjD/lWh++7hMDOml2eHtd58eG7h+qK3EryMuuRbsHGPikCoAgIkkDnckKfWSk2iDla/ejg==}
-    dev: true
-
   /inflight@1.0.6:
     resolution: {integrity: sha512-k92I/b08q4wvFscXCLvqfsHCrjrF7yiXsQuIVvVE7N82W3+aqpzuUdBbfhWcy/FZR3/4IgflMgKLOsvPDrGCJA==}
     dependencies:
@@ -1287,6 +1311,11 @@ packages:
     resolution: {integrity: sha512-JU3teHTNjmE2VCGFzuY8EXzCDVwEqB2a8fsIvwaStHhAWJEeVd1o1QD80CU6+ZdEXXSLbSsuLwJjkCBWqRQUVA==}
     engines: {node: '>=8.6'}
 
+  /playwright-core@1.34.0:
+    resolution: {integrity: sha512-fMUY1+iR6kYbJF/EsOOqzBA99ZHXbw9sYPNjwA4X/oV0hVF/1aGlWYBGPVUEqxBkGANDKMziYoOdKGU5DIP5Gg==}
+    engines: {node: '>=14'}
+    dev: true
+
   /postcss-less@6.0.0(postcss@8.4.23):
     resolution: {integrity: sha512-FPX16mQLyEjLzEuuJtxA8X3ejDLNGGEG503d2YGZR5Ask1SpDN8KmZUMpzCvyalWRywAn1n1VOA5dcqfCLo5rg==}
     engines: {node: '>=12'}
@@ -1491,10 +1520,6 @@ packages:
     engines: {node: '>=12'}
     dev: true
 
-  /sockette@2.0.6:
-    resolution: {integrity: sha512-W6iG8RGV6Zife3Cj+FhuyHV447E6fqFM2hKmnaQrTvg3OydINV3Msj3WPFbX76blUlUxvQSMMMdrJxce8NqI5Q==}
-    dev: true
-
   /sorcery@0.11.0:
     resolution: {integrity: sha512-J69LQ22xrQB1cIFJhPfgtLuI6BpWRiWu1Y3vSsIwK/eAScqJxd/+CJlUuHQRdX2C9NGFamq+KqNywGgaThwfHw==}
     hasBin: true
@@ -1568,6 +1593,33 @@ packages:
       - sugarss
     dev: true
 
+  /svelte-check@3.2.0(svelte@3.58.0):
+    resolution: {integrity: sha512-6ZnscN8dHEN5Eq5LgIzjj07W9nc9myyBH+diXsUAuiY/3rt0l65/LCIQYlIuoFEjp2F1NhXqZiJwV9omPj9tMw==}
+    hasBin: true
+    peerDependencies:
+      svelte: ^3.55.0
+    dependencies:
+      '@jridgewell/trace-mapping': 0.3.18
+      chokidar: 3.5.3
+      fast-glob: 3.2.12
+      import-fresh: 3.3.0
+      picocolors: 1.0.0
+      sade: 1.8.1
+      svelte: 3.58.0
+      svelte-preprocess: 5.0.3(svelte@3.58.0)(typescript@5.0.4)
+      typescript: 5.0.4
+    transitivePeerDependencies:
+      - '@babel/core'
+      - coffeescript
+      - less
+      - postcss
+      - postcss-load-config
+      - pug
+      - sass
+      - stylus
+      - sugarss
+    dev: true
+
   /svelte-hmr@0.15.1(svelte@3.58.0):
     resolution: {integrity: sha512-BiKB4RZ8YSwRKCNVdNxK/GfY+r4Kjgp9jCLEy0DuqAKfmQtpL38cQK3afdpjw4sqSs4PLi3jIPJIFp259NkZtA==}
     engines: {node: ^12.20 || ^14.13.1 || >= 16}
@@ -1618,6 +1670,53 @@ packages:
       detect-indent: 6.1.0
       magic-string: 0.27.0
       postcss: 8.4.23
+      sorcery: 0.11.0
+      strip-indent: 3.0.0
+      svelte: 3.58.0
+      typescript: 5.0.4
+    dev: true
+
+  /svelte-preprocess@5.0.3(svelte@3.58.0)(typescript@5.0.4):
+    resolution: {integrity: sha512-GrHF1rusdJVbOZOwgPWtpqmaexkydznKzy5qIC2FabgpFyKN57bjMUUUqPRfbBXK5igiEWn1uO/DXsa2vJ5VHA==}
+    engines: {node: '>= 14.10.0'}
+    requiresBuild: true
+    peerDependencies:
+      '@babel/core': ^7.10.2
+      coffeescript: ^2.5.1
+      less: ^3.11.3 || ^4.0.0
+      postcss: ^7 || ^8
+      postcss-load-config: ^2.1.0 || ^3.0.0 || ^4.0.0
+      pug: ^3.0.0
+      sass: ^1.26.8
+      stylus: ^0.55.0
+      sugarss: ^2.0.0 || ^3.0.0 || ^4.0.0
+      svelte: ^3.23.0
+      typescript: '>=3.9.5 || ^4.0.0 || ^5.0.0'
+    peerDependenciesMeta:
+      '@babel/core':
+        optional: true
+      coffeescript:
+        optional: true
+      less:
+        optional: true
+      postcss:
+        optional: true
+      postcss-load-config:
+        optional: true
+      pug:
+        optional: true
+      sass:
+        optional: true
+      stylus:
+        optional: true
+      sugarss:
+        optional: true
+      typescript:
+        optional: true
+    dependencies:
+      '@types/pug': 2.0.6
+      detect-indent: 6.1.0
+      magic-string: 0.27.0
       sorcery: 0.11.0
       strip-indent: 3.0.0
       svelte: 3.58.0
