@@ -7,6 +7,6 @@
   ],
   "prettier": "@ubermanu/prettier-config",
   "devDependencies": {
-    "@ubermanu/prettier-config": "^1.7.1"
+    "@ubermanu/prettier-config": "^3.3.0"
   }
 }

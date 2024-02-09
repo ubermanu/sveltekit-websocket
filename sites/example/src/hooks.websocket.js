@@ -1,4 +1,4 @@
-const uuid = () => Math.random().toString(16).slice(2)
+const uuid = () => crypto.randomUUID()
 
 /**
  * Handles the creation of a new websocket connection.
