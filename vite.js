@@ -15,15 +15,16 @@ const attachWebSocketServer = () => {
   /** @type {import('vite').Logger} */
   let logger
 
-  /** @type {ReturnType<import('http').Server['address']>} */
-  let address
-
   // TODO: Get from kit.config.hooks.websocket
   // TODO: Handle TS files
   const hooksFilename = 'src/hooks.websocket.js'
 
-  /** Creates a new WebSocketServer and loads the hooks file if available. */
-  async function createWebSocketServer() {
+  /**
+   * Creates a new WebSocketServer and loads the hooks file if available.
+   *
+   * @param {import('vite').HttpServer} httpServer
+   */
+  async function createWebSocketServer(httpServer) {
     const wss = new WebSocketServer({ noServer: true })
 
     // Skip connection handling if the file does not exists
@@ -44,11 +45,17 @@ const attachWebSocketServer = () => {
     wss.on('connection', (socket, req) => {
       let url
 
-      // TODO: Add request path to url
+      // TODO: Get protocol
+      const address = httpServer.address()
       if (address && typeof address === 'object') {
         const host = address.address === '::' ? 'localhost' : address.address
         const port = address.port
         url = new URL(`ws://${host}:${port}`)
+      }
+
+      // Add request path to url
+      if (url && req.url) {
+        url.pathname = req.url
       }
 
       // TODO: A locals object could be passed through all the subroutes rooms?
@@ -83,8 +90,7 @@ const attachWebSocketServer = () => {
     },
 
     async configureServer(server) {
-      address = server.httpServer?.address()
-      wss = await createWebSocketServer()
+      wss = await createWebSocketServer(server.httpServer)
 
       server.httpServer?.on('upgrade', (req, socket, head) => {
         if (req.headers['sec-websocket-protocol'] === 'vite-hmr') {
@@ -99,8 +105,7 @@ const attachWebSocketServer = () => {
     },
 
     async configurePreviewServer(server) {
-      address = server.httpServer?.address()
-      wss = await createWebSocketServer()
+      wss = await createWebSocketServer(server.httpServer)
 
       server.httpServer?.on('upgrade', (req, socket, head) => {
         wss?.handleUpgrade(req, socket, head, (socket, req) => {
@@ -112,7 +117,7 @@ const attachWebSocketServer = () => {
     },
 
     // On HMR, close all the websocket connections and create a new server
-    async handleHotUpdate({ file }) {
+    async handleHotUpdate({ file, server }) {
       if (path.relative(root, file) === hooksFilename) {
         logger.info(
           colors.green(`${hooksFilename} changed, restarting server...`),
@@ -123,7 +128,7 @@ const attachWebSocketServer = () => {
         )
 
         wss?.close()
-        wss = await createWebSocketServer()
+        wss = await createWebSocketServer(server.httpServer)
       }
     },
   }
