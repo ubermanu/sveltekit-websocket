@@ -26,6 +26,9 @@ importers:
       rollup:
         specifier: ^4.29.1
         version: 4.29.1
+      ws:
+        specifier: ^8.18.0
+        version: 8.18.0
     devDependencies:
       '@sveltejs/kit':
         specifier: ^2.4.0
@@ -42,9 +45,6 @@ importers:
       vite:
         specifier: ^5.4.11
         version: 5.4.11
-      ws:
-        specifier: ^8.18.0
-        version: 8.18.0
 
   test/e2e:
     devDependencies:
