@@ -13,10 +13,6 @@
       "types": "./index.d.ts",
       "import": "./index.js"
     },
-    "./adapter": {
-      "types": "./adapter.d.ts",
-      "import": "./adapter.js"
-    },
     "./vite": {
       "types": "./vite.d.ts",
       "import": "./vite.js"
@@ -24,8 +20,6 @@
     "./package.json": "./package.json"
   },
   "files": [
-    "adapter.js",
-    "adapter.d.ts",
     "files",
     "index.js",
     "index.d.ts",
@@ -45,6 +39,7 @@
     "@rollup/plugin-commonjs": "^28.0.2",
     "@rollup/plugin-json": "^6.1.0",
     "@rollup/plugin-node-resolve": "^16.0.0",
+    "picocolors": "^1.1.1",
     "rollup": "^4.29.1"
   },
   "devDependencies": {
