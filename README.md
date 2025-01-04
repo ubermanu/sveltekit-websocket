@@ -4,16 +4,14 @@ This is a small websocket plugin for SvelteKit. It uses [ws](https://github.com/
 
 ## Install
 
-Install the package:
+    pnpm i @ubermanu/sveltekit-websocket -D
 
-    pnpm install @ubermanu/sveltekit-websocket -D
-
-## Usage
+## Config
 
 Use the patched `node-adapter` in `svelte.config.js`:
 
 ```js
-import adapter from '@ubermanu/sveltekit-websocket/adapter'
+import adapter from '@ubermanu/sveltekit-websocket'
 
 const config = {
   kit: {
@@ -24,7 +22,7 @@ const config = {
 export default config
 ```
 
-Set up the websocket server in `vite.config.js`:
+Use the websocket dev server in `vite.config.js`:
 
 ```js
 import { sveltekit } from '@sveltejs/kit/vite'
@@ -35,6 +33,8 @@ export default defineConfig({
   plugins: [sveltekit(), websocket()],
 })
 ```
+
+## Usage
 
 Create your websocket handler in `src/hooks.websocket.js`:
 

@@ -2,7 +2,7 @@ name: npm-publish
 
 on:
   push:
-    tags: [ '*' ]
+    tags: ['*']
   workflow_dispatch:
 
 jobs:
