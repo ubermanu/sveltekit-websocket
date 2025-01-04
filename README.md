@@ -36,34 +36,33 @@ export default defineConfig({
 
 ## Usage
 
-Create your websocket handler in `src/hooks.websocket.js`:
+Create your websocket handler in `src/hooks.server.js`:
 
 ```js
-/** @type {import('@ubermanu/sveltekit-websocket').Handle} */
-export function handle({ socket }) {
+/** @type {import('@ubermanu/sveltekit-websocket').HandleWebsocket} */
+export function handleWebsocket({ socket }) {
   socket.on('message', () => {
     socket.send('something')
   })
 }
 ```
 
-In your page, import the `websocket` store and connect to its url using any websocket client:
+Connect to the endpoint using any websocket client:
 
 ```svelte
 <script>
   import { browser } from '$app/environment'
-  import { websocket } from '@ubermanu/sveltekit-websocket/stores'
-  import { writable } from 'svelte/store'
+  import { page } from '$app/state'
 
-  const socket = browser ? new WebSocket($websocket.url) : null
+  const socket = browser ? new WebSocket(`ws://${page.url.host}`) : null
 
-  const connected = writable(false)
+  let connected = $state(false)
 
-  socket?.addEventListener('open', () => connected.set(true))
-  socket?.addEventListener('close', () => connected.set(false))
+  socket?.addEventListener('open', () => (connected = true))
+  socket?.addEventListener('close', () => (connected = false))
 </script>
 
 <p>
-  Websocket connection status: {$connected ? '🟢' : '🔴'}
+  Websocket connection status: {connected ? '🟢' : '🔴'}
 </p>
 ```

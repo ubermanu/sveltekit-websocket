@@ -2,8 +2,7 @@ import commonjs from '@rollup/plugin-commonjs'
 import json from '@rollup/plugin-json'
 import { nodeResolve } from '@rollup/plugin-node-resolve'
 import nodeAdapter from '@sveltejs/adapter-node'
-import { readFileSync, writeFileSync } from 'node:fs'
-import path from 'node:path'
+import { appendFileSync, readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { rollup } from 'rollup'
 
@@ -16,14 +15,31 @@ export default (opts = {}) => {
   const adapter = nodeAdapter(opts)
   adapter.name = '@ubermanu/sveltekit-websocket'
 
+  // Extend the base adapter and inject a custom websocket handler on top of polka
+  // The `handleWebsocket` method is extracted from the `hooks.server.js` file
   adapter.adapt = wrap(adapter.adapt, async (proceed, builder) => {
+    await proceed(builder)
+
+    const tmp = builder.getBuildDirectory('adapter-node')
+    builder.rimraf(`${out}/server`)
+
     const pkg = JSON.parse(readFileSync('package.json', 'utf8'))
+
+    builder.copy(`${files}/websocket-handler.js`, `${tmp}/ws.js`, {
+      replace: {
+        SERVER_HOOKS: './chunks/hooks.server.js',
+      },
+    })
 
     // we bundle the Vite output so that deployments only need
     // their production dependencies. Anything in devDependencies
     // will get included in the bundled code
     const bundle = await rollup({
-      input: 'src/hooks.websocket.js',
+      input: {
+        index: `${tmp}/index.js`,
+        ws: `${tmp}/ws.js`,
+        manifest: `${tmp}/manifest.js`,
+      },
       external: [
         // dependencies could have deep exports, so we need a regex
         ...Object.keys(pkg.dependencies || {}).map(
@@ -42,32 +58,22 @@ export default (opts = {}) => {
       ],
     })
 
-    await proceed(builder)
-
     await bundle.write({
-      file: `${out}/server/hooks.websocket.js`,
+      dir: `${out}/server`,
       format: 'esm',
       sourcemap: true,
       chunkFileNames: 'chunks/[name]-[hash].js',
     })
 
-    builder.copy(files, out, {
-      replace: {
-        WEBSOCKET_HOOKS: './server/hooks.websocket.js',
-      },
-    })
-
     // Inject the websocket handler in production build
-    const serverFilename = path.join(out, 'index.js')
-    let server = readFileSync(serverFilename, 'utf8')
-
-    server = `
-      import handleWebsocket from './websocket-handler.js'
-      ${server}
-      handleWebsocket(server.server)
-    `
-
-    writeFileSync(serverFilename, server, 'utf8')
+    appendFileSync(
+      `${out}/index.js`,
+      `
+       const { default: handleWebsocket} = await import('./server/ws.js')
+       await handleWebsocket(server.server)
+      `,
+      'utf8'
+    )
   })
 
   return adapter

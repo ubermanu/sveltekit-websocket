@@ -17,9 +17,6 @@
       "types": "./adapter.d.ts",
       "import": "./adapter.js"
     },
-    "./stores": {
-      "svelte": "./stores.js"
-    },
     "./vite": {
       "types": "./vite.d.ts",
       "import": "./vite.js"
@@ -32,7 +29,6 @@
     "files",
     "index.js",
     "index.d.ts",
-    "stores.js",
     "vite.js",
     "vite.d.ts"
   ],

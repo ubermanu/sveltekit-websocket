@@ -1,15 +1,34 @@
-import * as hooks from 'WEBSOCKET_HOOKS'
 import { WebSocketServer } from 'ws'
 
-/** @param {import('http').Server} server */
-function handleWebsocket(server) {
-  const wss = new WebSocketServer({ server })
+/** @param {import('http').Server} httpServer */
+async function handle(httpServer) {
+  const wss = new WebSocketServer({ server: httpServer })
 
-  // TODO: Get the hooks from the generated file
-  // TODO; Pass url from req
+  /**
+   * @type {Partial<{
+   *   handleWebsocket: import('../index.js').HandleWebsocket
+   * }>}
+   */
+  const { handleWebsocket } = await import('SERVER_HOOKS')
+
+  // TODO: Avoid unnecessary computations if no handle
   wss.on('connection', (ws, req) => {
-    // TODO: Add missing event data
-    hooks?.handle({ socket: ws, server: wss })
+    let url
+
+    // TODO: Get protocol
+    const address = httpServer.address()
+    if (address && typeof address === 'object') {
+      const host = address.address === '::' ? 'localhost' : address.address
+      const port = address.port
+      url = new URL(`ws://${host}:${port}`)
+    }
+
+    // Add request path to url
+    if (url && req.url) {
+      url.pathname = req.url
+    }
+
+    handleWebsocket?.({ socket: ws, server: wss, request: { url } })
   })
 
   // Disconnects all the clients on shutdown
@@ -24,4 +43,4 @@ function handleWebsocket(server) {
   process.on('SIGINT', shutdown)
 }
 
-export default handleWebsocket
+export { handle as default }

@@ -26,6 +26,6 @@ export default [
       json(),
       prefixBuiltinModules(),
     ],
-    external: ['WEBSOCKET_HOOKS'],
+    external: ['SERVER_HOOKS'],
   },
 ]

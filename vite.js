@@ -15,9 +15,9 @@ const attachWebSocketServer = () => {
   /** @type {import('vite').Logger} */
   let logger
 
-  // TODO: Get from kit.config.hooks.websocket
+  // TODO: Get from kit.config.hooks.server
   // TODO: Handle TS files
-  const hooksFilename = 'src/hooks.websocket.js'
+  const hooksFilename = 'src/hooks.server.js'
 
   /**
    * Creates a new WebSocketServer and loads the hooks file if available.
@@ -34,8 +34,7 @@ const attachWebSocketServer = () => {
 
     /**
      * @type {Partial<{
-     *   handle: import('./index.js').Handle
-     *   handleError: import('./index.js').HandleError
+     *   handleWebsocket: import('./index.js').HandleWebsocket
      * }>}
      */
     const hooks = await import(
@@ -60,19 +59,13 @@ const attachWebSocketServer = () => {
 
       // TODO: A locals object could be passed through all the subroutes rooms?
       // TODO: Expose a limited API for socket and server
-      hooks.handle?.({
+      hooks.handleWebsocket?.({
         server: wss,
         socket: socket,
         request: {
           url: Object.freeze(url),
         },
       })
-
-      if (hooks.handleError) {
-        socket.on('error', (error) => {
-          hooks.handleError({ error })
-        })
-      }
 
       // TODO: Get the route from the request so we can handle scoped events
       //  Fetch the +websocket.js file and handle route events

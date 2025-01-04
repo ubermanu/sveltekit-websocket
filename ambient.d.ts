@@ -1,6 +1,5 @@
-import type { Handle, HandleError } from './index.js'
+import type { HandleWebsocket } from './index.js'
 
-declare module 'WEBSOCKET_HOOKS' {
-  export const handle: Handle
-  export const handleError: HandleError
+declare module 'SERVER_HOOKS' {
+  export const handleWebsocket: HandleWebsocket
 }
