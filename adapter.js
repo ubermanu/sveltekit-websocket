@@ -9,7 +9,7 @@ import { rollup } from 'rollup'
 
 const files = fileURLToPath(new URL('./files', import.meta.url).href)
 
-/** @param {Parameters<typeof adapter>[0]} [opts] */
+/** @param {Parameters<typeof nodeAdapter>[0]} [opts] */
 export default (opts = {}) => {
   const { out = 'build' } = opts
 

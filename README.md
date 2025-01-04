@@ -11,7 +11,7 @@ This is a small websocket plugin for SvelteKit. It uses [ws](https://github.com/
 Use the patched `node-adapter` in `svelte.config.js`:
 
 ```js
-import adapter from '@ubermanu/sveltekit-websocket'
+import adapter from '@ubermanu/sveltekit-websocket/adapter'
 
 const config = {
   kit: {

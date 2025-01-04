@@ -12,7 +12,9 @@
   },
   "include": [
     "index.js",
+    "index.d.ts",
     "adapter.js",
+    "adapter.d.ts",
     "vite.js",
     "stores.js",
     "src/**/*.js",

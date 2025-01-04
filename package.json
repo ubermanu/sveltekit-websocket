@@ -13,21 +13,28 @@
       "types": "./index.d.ts",
       "import": "./index.js"
     },
+    "./adapter": {
+      "types": "./adapter.d.ts",
+      "import": "./adapter.js"
+    },
     "./stores": {
       "svelte": "./stores.js"
     },
     "./vite": {
+      "types": "./vite.d.ts",
       "import": "./vite.js"
     },
     "./package.json": "./package.json"
   },
   "files": [
     "adapter.js",
+    "adapter.d.ts",
     "files",
     "index.js",
     "index.d.ts",
     "stores.js",
-    "vite.js"
+    "vite.js",
+    "vite.d.ts"
   ],
   "scripts": {
     "build": "node -e \"fs.rmSync('files', { force: true, recursive: true })\" && rollup -c",
