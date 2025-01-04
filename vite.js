@@ -15,8 +15,8 @@ const attachWebSocketServer = () => {
   /** @type {import('vite').Logger} */
   let logger
 
-  /** @type {Readonly<URL> | null} */
-  let url
+  /** @type {ReturnType<import('http').Server['address']>} */
+  let address
 
   // TODO: Get from kit.config.hooks.websocket
   // TODO: Handle TS files
@@ -41,19 +41,28 @@ const attachWebSocketServer = () => {
       /* @vite-ignore */ path.join(root, hooksFilename) + `?t=${Date.now()}`
     )
 
-    wss.on('connection', (ws) => {
+    wss.on('connection', (socket, req) => {
+      let url
+
+      // TODO: Add request path to url
+      if (address && typeof address === 'object') {
+        const host = address.address === '::' ? 'localhost' : address.address
+        const port = address.port
+        url = new URL(`ws://${host}:${port}`)
+      }
+
       // TODO: A locals object could be passed through all the subroutes rooms?
       // TODO: Expose a limited API for socket and server
       hooks.handle?.({
         server: wss,
-        socket: ws,
+        socket: socket,
         request: {
-          url: url,
+          url: Object.freeze(url),
         },
       })
 
       if (hooks.handleError) {
-        ws.on('error', (error) => {
+        socket.on('error', (error) => {
           hooks.handleError({ error })
         })
       }
@@ -74,8 +83,8 @@ const attachWebSocketServer = () => {
     },
 
     async configureServer(server) {
-      wss = await createWebSocketServer(root)
-      url = addressToUrl(server.httpServer?.address)
+      address = server.httpServer?.address()
+      wss = await createWebSocketServer()
 
       server.httpServer?.on('upgrade', (req, socket, head) => {
         if (req.headers['sec-websocket-protocol'] === 'vite-hmr') {
@@ -90,8 +99,8 @@ const attachWebSocketServer = () => {
     },
 
     async configurePreviewServer(server) {
-      wss = await createWebSocketServer(root)
-      url = addressToUrl(server.httpServer?.address)
+      address = server.httpServer?.address()
+      wss = await createWebSocketServer()
 
       server.httpServer?.on('upgrade', (req, socket, head) => {
         wss?.handleUpgrade(req, socket, head, (socket, req) => {
@@ -114,27 +123,10 @@ const attachWebSocketServer = () => {
         )
 
         wss?.close()
-        wss = await createWebSocketServer(root)
+        wss = await createWebSocketServer()
       }
     },
   }
 }
 
-/**
- * @param {import('node:http').Server['address']} address
- * @returns {Readonly<URL> | null}
- */
-function addressToUrl(address) {
-  if (!address) {
-    return null
-  }
-
-  const url =
-    typeof address === 'string'
-      ? new URL(address)
-      : new URL(`${address.address}:${address.port}`)
-
-  return Object.freeze(url)
-}
-
-export { attachWebSocketServer as sokit }
+export { attachWebSocketServer as websocket }

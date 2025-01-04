@@ -14,7 +14,7 @@
       "import": "./index.js"
     },
     "./stores": {
-      "import": "./stores.js"
+      "svelte": "./stores.js"
     },
     "./vite": {
       "import": "./vite.js"

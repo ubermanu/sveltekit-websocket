@@ -7,7 +7,7 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { rollup } from 'rollup'
 
-const files = fileURLToPath(new URL('../../files', import.meta.url).href)
+const files = fileURLToPath(new URL('./files', import.meta.url).href)
 
 /** @param {Parameters<typeof adapter>[0]} [opts] */
 export default (opts = {}) => {
