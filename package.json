@@ -40,6 +40,7 @@
     "@rollup/plugin-json": "^6.1.0",
     "@rollup/plugin-node-resolve": "^16.0.0",
     "@sveltejs/adapter-node": "^5.2.11",
+    "@types/ws": "^8.18.0",
     "picocolors": "^1.1.1",
     "rollup": "^4.29.1",
     "ws": "^8.18.0"

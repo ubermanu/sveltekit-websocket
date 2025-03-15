@@ -20,6 +20,9 @@ importers:
       '@sveltejs/adapter-node':
         specifier: ^5.2.11
         version: 5.2.11(@sveltejs/kit@2.15.1(@sveltejs/vite-plugin-svelte@4.0.4(svelte@5.16.0)(vite@5.4.11))(svelte@5.16.0)(vite@5.4.11))
+      '@types/ws':
+        specifier: ^8.18.0
+        version: 8.18.0
       picocolors:
         specifier: ^1.1.1
         version: 1.1.1
@@ -518,6 +521,9 @@ packages:
 
   '@types/unist@3.0.3':
     resolution: {integrity: sha512-ko/gIFJRv177XgZsZcBwnqJN5x/Gien8qNOn0D5bQU/zAzVf9Zt3BlcUiLqhV9y4ARk0GbT3tnUiPNgnTXzc/Q==}
+
+  '@types/ws@8.18.0':
+    resolution: {integrity: sha512-8svvI3hMyvN0kKCJMvTJP/x6Y/EoQbepff882wL+Sn5QsXb3etnamgrJq4isrBxSJj5L2AuXcI0+bgkoAXGUJw==}
 
   '@ubermanu/prettier-config@3.4.0':
     resolution: {integrity: sha512-4ZnNivMdDnbIyJR+MHnq3reS9GUHnpkwfzjPXbMrnYNcvswtj/rcyO+020NnGM+5y7pmdLwr2qLcDJ15r9xg1Q==}
@@ -1720,6 +1726,10 @@ snapshots:
   '@types/resolve@1.20.2': {}
 
   '@types/unist@3.0.3': {}
+
+  '@types/ws@8.18.0':
+    dependencies:
+      '@types/node': 12.20.55
 
   '@ubermanu/prettier-config@3.4.0(prettier-plugin-svelte@3.3.2(prettier@3.4.2)(svelte@5.16.0))(prettier@3.4.2)':
     dependencies:
