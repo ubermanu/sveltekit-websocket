@@ -18,7 +18,7 @@ async function handle(httpServer) {
     // TODO: Get protocol
     const address = httpServer.address()
     if (address && typeof address === 'object') {
-      const host = address.address === '::' ? 'localhost' : address.address
+      const host = address.address.startsWith('::') ? 'localhost' : address.address
       const port = address.port
       url = new URL(`ws://${host}:${port}`)
     }

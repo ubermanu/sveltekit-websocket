@@ -32,7 +32,7 @@
     "dev": "node -e \"fs.rmSync('files', { force: true, recursive: true })\" && rollup -cw",
     "format": "pnpm lint --write",
     "lint": "prettier --check .",
-    "prepublish": "pnpm run build"
+    "prepare": "pnpm run build"
   },
   "prettier": "@ubermanu/prettier-config",
   "dependencies": {

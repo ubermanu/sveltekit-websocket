@@ -6,125 +6,157 @@ import { WebSocketServer } from 'ws'
 
 /** @returns {import('vite').Plugin} */
 const attachWebSocketServer = () => {
-  /** @type {WebSocketServer} */
-  let wss
+ /** @type {WebSocketServer} */
+ let wss
 
-  /** @type {string} */
-  let root
+ /** @type {string} */
+ let root
 
-  /** @type {import('vite').Logger} */
-  let logger
+ /** @type {import('vite').Logger} */
+ let logger
 
-  // TODO: Get from kit.config.hooks.server
-  // TODO: Handle TS files
-  const hooksFilename = 'src/hooks.server.js'
+ /** @type {import('vite').ViteDevServer | null} */
+ let viteServer = null
 
-  /**
-   * Creates a new WebSocketServer and loads the hooks file if available.
-   *
-   * @param {import('vite').HttpServer} httpServer
-   */
-  async function createWebSocketServer(httpServer) {
-    const wss = new WebSocketServer({ noServer: true })
+ /**
+  * Gets the hooks file path from SvelteKit configuration
+  * @param {string} root - Root directory
+  * @returns {string | null} - Hooks file path or null if not found
+  */
+ async function getHooksFilename(root) {
+   try {
+     const configPath = path.join(root, 'svelte.config.js')
+     if (fs.existsSync(configPath)) {
+       const config = await import(/* @vite-ignore */ `file://${configPath}?t=${Date.now()}`)
+       const hooksPath = config.default?.kit?.files?.hooks?.server
+       
+       if (hooksPath && fs.existsSync(path.join(root, hooksPath))) {
+         return hooksPath
+       }
+     }
+   } catch (error) {
+     // Fallback to automatic detection
+   }
 
-    // Skip connection handling if the file does not exists
-    if (!fs.existsSync(path.join(root, hooksFilename))) {
-      return wss
-    }
+   // Fallback to default locations
+   const tsHooks = 'src/hooks.server.ts'
+   const jsHooks = 'src/hooks.server.js'
+   
+   if (fs.existsSync(path.join(root, tsHooks))) {
+     return tsHooks
+   }
+   if (fs.existsSync(path.join(root, jsHooks))) {
+     return jsHooks
+   }
+   return null
+ }
 
-    /**
-     * @type {Partial<{
-     *   handleWebsocket: import('./index.js').HandleWebsocket
-     * }>}
-     */
-    const hooks = await import(
-      /* @vite-ignore */ path.join(root, hooksFilename) + `?t=${Date.now()}`
-    )
+ /**
+  * Creates a new WebSocketServer and loads the hooks file if available
+  * @param {import('vite').HttpServer} httpServer
+  */
+ async function createWebSocketServer(httpServer) {
+   const wss = new WebSocketServer({ noServer: true })
 
-    wss.on('connection', (socket, req) => {
-      let url
+   const hooksFilename = await getHooksFilename(root)
 
-      // TODO: Get protocol
-      const address = httpServer.address()
-      if (address && typeof address === 'object') {
-        const host = address.address === '::' ? 'localhost' : address.address
-        const port = address.port
-        url = new URL(`ws://${host}:${port}`)
-      }
+   if (!hooksFilename) {
+     return wss
+   }
 
-      // Add request path to url
-      if (url && req.url) {
-        url.pathname = req.url
-      }
+   /**
+    * @type {Partial<{
+    *   handleWebsocket: import('./index.js').HandleWebsocket
+    * }>}
+    */
+   const hooks = await (viteServer?.ssrLoadModule(hooksFilename) ?? 
+     import(/* @vite-ignore */ `file://${path.resolve(root, hooksFilename)}?t=${Date.now()}`))
 
-      // TODO: A locals object could be passed through all the subroutes rooms?
-      // TODO: Expose a limited API for socket and server
-      hooks.handleWebsocket?.({
-        server: wss,
-        socket: socket,
-        request: {
-          url: Object.freeze(url),
-        },
-      })
+   wss.on('connection', (socket, req) => {
+     let url
 
-      // TODO: Get the route from the request so we can handle scoped events
-      //  Fetch the +websocket.js file and handle route events
-    })
+     // TODO: Get protocol
+     const address = httpServer.address()
+     if (address && typeof address === 'object') {
+       const host = address.address.startsWith('::') ? 'localhost' : address.address
+       const port = address.port
+       url = new URL(`ws://${host}:${port}`)
+     }
 
-    return wss
-  }
+     if (url && req.url) {
+       url.pathname = req.url
+     }
 
-  return {
-    name: '@ubermanu/sveltekit-websocket',
+     // TODO: A locals object could be passed through all the subroutes rooms?
+     // TODO: Expose a limited API for socket and server
+     hooks.handleWebsocket?.({
+       server: wss,
+       socket: socket,
+       request: {
+         url: Object.freeze(url),
+       },
+     })
 
-    configResolved(config) {
-      root = config.root
-      logger = config.logger
-    },
+     // TODO: Get the route from the request so we can handle scoped events
+     //  Fetch the +websocket.js file and handle route events
+   })
 
-    async configureServer(server) {
-      wss = await createWebSocketServer(server.httpServer)
+   return wss
+ }
 
-      server.httpServer?.on('upgrade', (req, socket, head) => {
-        if (req.headers['sec-websocket-protocol'] === 'vite-hmr') {
-          return
-        }
-        wss?.handleUpgrade(req, socket, head, (socket, req) => {
-          wss.emit('connection', socket, req)
-        })
-      })
+ return {
+   name: '@ubermanu/sveltekit-websocket',
 
-      server.httpServer?.on('close', () => wss?.close())
-    },
+   configResolved(config) {
+     root = config.root
+     logger = config.logger
+   },
 
-    async configurePreviewServer(server) {
-      wss = await createWebSocketServer(server.httpServer)
+   async configureServer(server) {
+     viteServer = server
+     wss = await createWebSocketServer(server.httpServer)
 
-      server.httpServer?.on('upgrade', (req, socket, head) => {
-        wss?.handleUpgrade(req, socket, head, (socket, req) => {
-          wss.emit('connection', socket, req)
-        })
-      })
+     server.httpServer?.on('upgrade', (req, socket, head) => {
+       if (req.headers['sec-websocket-protocol'] === 'vite-hmr') {
+         return
+       }
+       wss?.handleUpgrade(req, socket, head, (socket, req) => {
+         wss.emit('connection', socket, req)
+       })
+     })
 
-      server.httpServer?.on('close', () => wss?.close())
-    },
+     server.httpServer?.on('close', () => wss?.close())
+   },
 
-    // On HMR, close all the websocket connections and create a new server
-    async handleHotUpdate({ file, server }) {
-      if (path.relative(root, file) === hooksFilename) {
-        logger.info(
-          colors.green(`${hooksFilename} changed, restarting server...`),
-          {
-            timestamp: true,
-            clear: true,
-          }
-        )
+   async configurePreviewServer(server) {
+     wss = await createWebSocketServer(server.httpServer)
 
-        wss?.close()
-        wss = await createWebSocketServer(server.httpServer)
-      }
-    },
-  }
+     server.httpServer?.on('upgrade', (req, socket, head) => {
+       wss?.handleUpgrade(req, socket, head, (socket, req) => {
+         wss.emit('connection', socket, req)
+       })
+     })
+
+     server.httpServer?.on('close', () => wss?.close())
+   },
+
+   async handleHotUpdate({ file, server }) {
+     const hooksFilename = await getHooksFilename(root)
+
+     if (hooksFilename && path.relative(root, file) === hooksFilename) {
+       logger.info(
+         colors.green(`${hooksFilename} changed, restarting server...`),
+         {
+           timestamp: true,
+           clear: true,
+         }
+       )
+
+       wss?.close()
+       wss = await createWebSocketServer(server.httpServer)
+     }
+   },
+ }
 }
 
 export { attachWebSocketServer as websocket }
